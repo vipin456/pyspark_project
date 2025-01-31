@@ -14,8 +14,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
       - name: Copy DAG to Airflow Docker Container
         run: |
-          docker cp sync_dag_from_github.py airflow-webserver-container:/opt/airflow/dags/
-          docker cp sync_dag_from_github.py airflow-scheduler-container:/opt/airflow/dags/
-          docker cp sync_dag_from_github.py airflow-worker-container:/opt/airflow/dags/
+          # Copy DAG file to Airflow containers
+          docker cp call_github_repository.py airflow-webserver-container:/opt/airflow/dags/
+          docker cp call_github_repository.py airflow-scheduler-container:/opt/airflow/dags/
+          docker cp call_github_repository.py airflow-worker-container:/opt/airflow/dags/
+
+      - name: Restart Airflow Containers
+        run: |
+          # Optionally restart the containers to ensure the new DAGs are picked up
+          docker restart airflow-webserver-container
+          docker restart airflow-scheduler-container
+          docker restart airflow-worker-container
