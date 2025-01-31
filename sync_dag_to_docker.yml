@@ -1,0 +1,21 @@
+name: Sync DAG to Docker Container
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync_dag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Copy DAG to Airflow Docker Container
+        run: |
+          docker cp sync_dag_from_github.py airflow-webserver-container:/opt/airflow/dags/
+          docker cp sync_dag_from_github.py airflow-scheduler-container:/opt/airflow/dags/
+          docker cp sync_dag_from_github.py airflow-worker-container:/opt/airflow/dags/
