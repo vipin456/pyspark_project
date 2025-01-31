@@ -14,6 +14,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Verify DAG file exists
+        run: |
+          # Verify that the file exists in the 'dags' directory
+          ls -l dags/
+          ls -l dags/call_github_repository.py
+
       - name: Login to Docker Hub
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -24,7 +30,6 @@ jobs:
           docker cp dags/call_github_repository.py airflow-webserver-container:/opt/airflow/dags/
           docker cp dags/call_github_repository.py airflow-scheduler-container:/opt/airflow/dags/
           docker cp dags/call_github_repository.py airflow-worker-container:/opt/airflow/dags/
-
 
       - name: Restart Airflow Containers
         run: |
