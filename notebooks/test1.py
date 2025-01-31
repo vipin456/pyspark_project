@@ -57,20 +57,19 @@ joined_df.show()
 total_spend_df = joined_df.groupBy("customer_id", "name") \
     .agg(sum("amount").alias("total_spend")) \
     .orderBy(col("total_spend").desc())
-print("Total Spend per Customer:")
+
 total_spend_df.show()
 
 # Step 4: Rank customers based on their total spend
 # Define window specification to partition by customer_id
 window_spec = Window.partitionBy("customer_id").orderBy(col("total_spend").desc())
 ranked_customers_df = total_spend_df.withColumn("rank", row_number().over(window_spec))
-print("Ranked Customers by Total Spend:")
 ranked_customers_df.show()
 
 # Step 5: Identify the top 3 customers
 top_customers_df = ranked_customers_df.filter(col("rank") <= 3)
-print("Top 3 Customers by Total Spend:")
 top_customers_df.show()
+print("All process has been completed successfully..")
 
 # Stop the Spark session
 # spark.stop()
