@@ -7,7 +7,7 @@ import logging
 
 # Function to clone the repository from GitHub
 def clone_repo():
-    repo_url = "https://github.com/vipin456/py_handles_csv.git"
+    repo_url = "https://github.com/vipin456/pyspark_project.git"
     repo_dir = "/opt/airflow/dags/py_handles_csv"  # Path to clone the repository (Use absolute path)
 
     # Check if the directory already exists
