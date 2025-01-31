@@ -21,9 +21,10 @@ jobs:
       - name: Copy DAG to Airflow Docker Container
         run: |
           # Copy DAG file to Airflow containers
-          docker cp call_github_repository.py airflow-webserver-container:/opt/airflow/dags/
-          docker cp call_github_repository.py airflow-scheduler-container:/opt/airflow/dags/
-          docker cp call_github_repository.py airflow-worker-container:/opt/airflow/dags/
+          docker cp dags/call_github_repository.py airflow-webserver-container:/opt/airflow/dags/
+          docker cp dags/call_github_repository.py airflow-scheduler-container:/opt/airflow/dags/
+          docker cp dags/call_github_repository.py airflow-worker-container:/opt/airflow/dags/
+
 
       - name: Restart Airflow Containers
         run: |
