@@ -48,9 +48,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Run Docker Compose
+      - name: Set Environment Variables
         run: |
-          docker-compose -f docker-compose-dags.yml up -d
+          echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
+          echo "AIRFLOW_FERNET_KEY=${{ secrets.AIRFLOW_FERNET_KEY }}" >> $GITHUB_ENV
+          echo "AIRFLOW_SECRET_KEY=${{ secrets.AIRFLOW_SECRET_KEY }}" >> $GITHUB_ENV
+
+      - name: Run Docker Compose
+        run: docker-compose -f docker-compose-dags.yml up -d
 
       - name: Check Running Containers
         run: docker ps -a
