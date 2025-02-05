@@ -3,97 +3,99 @@ services:
     image: "${DOCKERHUB_USERNAME}/pyspark-image:latest"
     container_name: pyspark-container
     ports:
-      - "8889:8888"
+      - "8889:8888"  # Port for accessing Jupyter or running PySpark jobs
     networks:
       - spark-network
     volumes:
-      - ./notebooks:/opt/notebooks
+      - ./hotels:/opt/hotels
+      - ./flights:/opt/flights
+      - ./vacation:/opt/vacation
+      - ./carental:/opt/carental
+      - ./custom:/opt/custom
+      - ./cruises:/opt/cruises
+    command: [ "bash", "-c", "start your spark job script here" ]  # Replace with actual job script
 
   spark-ui:
     image: apache/spark:latest
     container_name: spark-ui-container
     ports:
-        - "4040:4040"
+      - "4040:4040"  # Spark UI Port for monitoring jobs
     networks:
-        - spark-network
+      - spark-network
     depends_on:
-        - pyspark
+      - pyspark
 
   airflow-webserver:
     image: "${DOCKERHUB_USERNAME}/airflow-webserver:latest"
     container_name: airflow-webserver-container
     environment:
-        - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-        - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-        - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
-        - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY}  # Set Fernet Key
-        - AIRFLOW__WEBSERVER__RBAC=True
-        - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY}
-        - AIRFLOW_USER=admin
-        - AIRFLOW_PASSWORD=admin
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW_FERNET_KEY}  # Set Fernet Key for encryption
+      - AIRFLOW__WEBSERVER__RBAC=True
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY}
+      - AIRFLOW_USER=admin
+      - AIRFLOW_PASSWORD=admin
     ports:
-        - "8080:8080"
+      - "8080:8080"  # Airflow Web UI Port
     networks:
-        - spark-network
+      - spark-network
     depends_on:
-        - redis
-        - postgres
+      - redis
+      - postgres
     restart: always
     command: >
-      /bin/bash -c "
-      git clone --depth=1 https://github.com/vipin456/pyspark_project.git /opt/airflow/dags/pyspark_project &&
       airflow db init &&
       airflow users create --username admin --password admin --firstname Airflow --lastname Admin --role Admin --email admin@example.com &&
-      airflow webserver"
+      airflow webserver
 
   airflow-scheduler:
     image: "${DOCKERHUB_USERNAME}/airflow-scheduler:latest"
     container_name: airflow-scheduler-container
     environment:
-        - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-        - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-        - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
     networks:
-        - spark-network
+      - spark-network
     depends_on:
-        - airflow-webserver
+      - airflow-webserver
     restart: always
     command: >
-      /bin/bash -c "
-      git clone --depth=1 https://github.com/vipin456/pyspark_project.git /opt/airflow/dags/pyspark_project &&
-      airflow scheduler"
+      airflow scheduler
 
   airflow-worker:
     image: "${DOCKERHUB_USERNAME}/airflow-worker:latest"
     container_name: airflow-worker-container
     environment:
-        - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-        - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-        - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CELERY__BROKER_URL=redis://:@redis:6379/0
     networks:
-        - spark-network
+      - spark-network
     depends_on:
-        - airflow-scheduler
+      - airflow-scheduler
     restart: always
 
   postgres:
     image: postgres:latest
     container_name: postgres-container
     environment:
-        POSTGRES_USER: airflow
-        POSTGRES_PASSWORD: airflow
-        POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
     ports:
-        - "5432:5432"
+      - "5432:5432"  # PostgreSQL Port for Airflow metadata
     networks:
-        - spark-network
+      - spark-network
     restart: always
 
   redis:
     image: redis:latest
     container_name: redis-container
     networks:
-        - spark-network
+      - spark-network
     restart: always
 
 networks:
