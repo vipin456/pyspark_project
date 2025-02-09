@@ -13,7 +13,7 @@ services:
       - ./carental:/opt/carental
       - ./custom:/opt/custom
       - ./cruises:/opt/cruises
-    command: [ "bash", "-c", "start your spark job script here" ]  # Replace with actual job script
+    #command: [ "bash", "-c", "start your spark job script here" ]  # Replace with actual job script
 
   spark-ui:
     image: apache/spark:latest
